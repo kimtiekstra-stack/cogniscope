@@ -6,742 +6,322 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Cogniscope">
-<meta name="theme-color" content="#0c0c0d">
+<meta name="theme-color" content="#0a0a0b">
 <title>Cogniscope</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg: #0c0c0d;
-  --s1: #161618;
-  --s2: #1e1e21;
-  --s3: #272729;
+  --bg: #0a0a0b;
+  --s1: #141416;
+  --s2: #1c1c1f;
+  --s3: #242428;
+  --s4: #2c2c31;
   --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.13);
+  --border2: rgba(255,255,255,0.12);
   --text: #edeae4;
   --muted: rgba(237,234,228,0.42);
-  --muted2: rgba(237,234,228,0.25);
+  --muted2: rgba(237,234,228,0.22);
   --lime: #c8f07a;
   --teal: #7af0c8;
   --pink: #f07ac8;
   --amber: #f0c87a;
   --red: #f07a7a;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 44px);
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; width: 100%; background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; font-size: 15px; overflow: hidden; overscroll-behavior: none; }
 
-html, body {
-  height: 100%; width: 100%;
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Outfit', sans-serif;
-  font-size: 15px;
-  overflow: hidden;
-  overscroll-behavior: none;
-}
+.app { display: flex; flex-direction: column; height: 100%; padding-top: var(--safe-top); }
 
-/* ── App shell ── */
-.app {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding-top: var(--safe-top);
-}
+/* Topbar */
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 10px 18px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; background: rgba(10,10,11,0.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); position: relative; z-index: 10; }
+.logo { font-family: 'Instrument Serif', serif; font-size: 1.4rem; color: var(--lime); letter-spacing: -0.3px; }
+.topbar-meta { display: flex; align-items: center; gap: 8px; }
+.status-pill { font-size: 11px; font-family: 'DM Mono', monospace; padding: 3px 10px; border-radius: 20px; background: var(--s3); color: var(--muted); border: 1px solid var(--border2); }
+.status-pill.active { color: var(--lime); border-color: rgba(200,240,122,0.25); background: rgba(200,240,122,0.07); }
 
-/* ── Top bar ── */
-.topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 20px 10px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-  background: rgba(12,12,13,0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-}
+/* Scroll */
+.scroll { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
+.scroll::-webkit-scrollbar { display: none; }
 
-.logo {
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.45rem;
-  color: var(--lime);
-  letter-spacing: -0.3px;
-}
-
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.count-pill {
-  background: var(--s3);
-  color: var(--lime);
-  font-size: 11px;
-  font-family: 'DM Mono', monospace;
-  padding: 3px 10px;
-  border-radius: 20px;
-  border: 1px solid rgba(200,240,122,0.2);
-}
-
-.icon-btn {
-  width: 36px; height: 36px;
-  border-radius: 10px;
-  background: var(--s2);
-  border: 1px solid var(--border2);
-  color: var(--muted);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  transition: all 0.15s;
-  font-size: 16px;
-}
-.icon-btn:active { transform: scale(0.93); background: var(--s3); }
-
-/* ── Install banner ── */
-.install-banner {
-  margin: 12px 16px 0;
-  padding: 12px 14px;
-  background: linear-gradient(135deg, rgba(200,240,122,0.08), rgba(122,240,200,0.06));
-  border: 1px solid rgba(200,240,122,0.2);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-.install-icon { font-size: 22px; flex-shrink: 0; }
-
-.install-text { flex: 1; }
-.install-text strong { display: block; font-size: 13px; font-weight: 600; color: var(--lime); }
-.install-text span { font-size: 11px; color: var(--muted); line-height: 1.4; display: block; margin-top: 1px; }
-
-.install-steps {
-  font-size: 11px;
-  color: var(--muted);
-  font-family: 'DM Mono', monospace;
-  margin-top: 6px;
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.install-steps span {
-  background: var(--s3);
-  padding: 2px 7px;
-  border-radius: 4px;
-  color: var(--teal) !important;
-}
-
-.dismiss-btn {
-  background: none; border: none; color: var(--muted2);
-  font-size: 20px; cursor: pointer; padding: 4px; line-height: 1; flex-shrink: 0;
-}
-
-/* ── Scroll area ── */
-.scroll-area {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-}
-
-.scroll-area::-webkit-scrollbar { display: none; }
-
-/* ── Screens ── */
-.screen { display: none; padding: 16px; padding-bottom: calc(90px + var(--safe-bottom)); }
+/* Screens */
+.screen { display: none; padding: 16px 16px calc(100px + var(--safe-bottom)); }
 .screen.active { display: block; }
 
-/* ── Upload screen ── */
-.drop-zone {
-  border: 1.5px dashed var(--border2);
-  border-radius: 16px;
-  padding: 36px 20px;
-  text-align: center;
-  background: var(--s1);
-  margin-bottom: 16px;
-  transition: all 0.2s;
-  position: relative;
-  overflow: hidden;
-}
-
-.drop-zone.drag-over {
-  border-color: var(--lime);
-  background: rgba(200,240,122,0.04);
-}
-
-.upload-icon {
-  width: 52px; height: 52px;
-  margin: 0 auto 14px;
-  background: var(--s3);
-  border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 24px;
-}
-
-.drop-zone h2 {
-  font-size: 17px;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.drop-zone p {
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.5;
-  margin-bottom: 20px;
-}
-
-.upload-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  background: var(--lime);
-  color: #0c0c0d;
-  border: none;
-  border-radius: 12px;
-  font-family: 'Outfit', sans-serif;
-  font-weight: 700;
-  font-size: 15px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.upload-btn:active { transform: scale(0.96); background: #d8ff88; }
-
+/* ── UPLOAD SCREEN ── */
+.upload-hero { border: 1.5px dashed var(--border2); border-radius: 18px; padding: 32px 20px 28px; text-align: center; background: var(--s1); margin-bottom: 16px; }
+.upload-hero .icon { font-size: 2.5rem; margin-bottom: 12px; }
+.upload-hero h2 { font-family: 'Instrument Serif', serif; font-size: 1.5rem; font-weight: 400; margin-bottom: 8px; }
+.upload-hero p { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 22px; max-width: 260px; margin-left: auto; margin-right: auto; }
+.big-btn { display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px; background: var(--lime); color: #0a0a0b; border: none; border-radius: 14px; font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.15s; width: 100%; justify-content: center; }
+.big-btn:active { transform: scale(0.97); }
+.big-btn:disabled { background: var(--s3); color: var(--muted); }
+.big-btn.secondary { background: var(--s2); color: var(--text); border: 1px solid var(--border2); margin-top: 10px; }
 #fileInput { display: none; }
 
-/* ── Thumb grid ── */
-.section-label {
-  font-size: 11px;
-  font-family: 'DM Mono', monospace;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-  margin-bottom: 10px;
-}
+/* Queue info */
+.queue-box { background: var(--s1); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; }
+.queue-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.queue-label { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--muted); }
+.queue-val { font-size: 13px; font-weight: 600; }
+.queue-val.lime { color: var(--lime); }
+.queue-val.teal { color: var(--teal); }
+.queue-val.amber { color: var(--amber); }
 
-.thumb-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 16px;
-}
+/* Progress bar */
+.progress-wrap { margin-top: 10px; }
+.progress-track { height: 4px; background: var(--s3); border-radius: 4px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--lime); border-radius: 4px; transition: width 0.4s ease; }
+.progress-label { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); margin-top: 5px; text-align: right; }
 
-.thumb-card {
-  position: relative;
-  border-radius: 10px;
-  overflow: hidden;
-  background: var(--s2);
-  border: 1.5px solid var(--border);
-  aspect-ratio: 9/16;
-  cursor: pointer;
-  transition: border-color 0.15s;
-}
+/* Install tip */
+.install-tip { background: rgba(122,240,200,0.06); border: 1px solid rgba(122,240,200,0.18); border-radius: 12px; padding: 12px 14px; margin-bottom: 14px; font-size: 12px; color: var(--muted); line-height: 1.6; }
+.install-tip strong { color: var(--teal); display: block; margin-bottom: 3px; font-size: 13px; }
 
-.thumb-card img {
-  width: 100%; height: 100%;
-  object-fit: cover;
-  display: block;
-}
+/* Batch history */
+.batch-list { display: flex; flex-direction: column; gap: 8px; }
+.batch-item { background: var(--s1); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: border-color 0.15s; }
+.batch-item:active { border-color: var(--border2); }
+.batch-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--lime); flex-shrink: 0; }
+.batch-dot.pending { background: var(--s4); }
+.batch-dot.processing { background: var(--amber); animation: pulse 1s infinite; }
+.batch-info { flex: 1; min-width: 0; }
+.batch-name { font-size: 13px; font-weight: 600; }
+.batch-sub { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); margin-top: 2px; }
+.batch-arrow { color: var(--muted2); font-size: 16px; }
 
-.thumb-card .remove {
-  position: absolute;
-  top: 5px; right: 5px;
-  width: 22px; height: 22px;
-  background: rgba(0,0,0,0.7);
-  border: none; border-radius: 50%;
-  color: white; font-size: 14px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  backdrop-filter: blur(4px);
-}
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.3} }
 
-.thumb-card.analysed { border-color: rgba(200,240,122,0.4); }
-
-.thumb-card .badge {
-  position: absolute;
-  bottom: 5px; left: 5px;
-  background: rgba(0,0,0,0.75);
-  backdrop-filter: blur(4px);
-  border-radius: 6px;
-  padding: 2px 7px;
-  font-size: 10px;
-  font-family: 'DM Mono', monospace;
-  color: var(--lime);
-}
-
-/* ── Analyse button ── */
-.analyse-bar {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  padding: 12px 16px calc(12px + var(--safe-bottom));
-  background: rgba(12,12,13,0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid var(--border);
-  z-index: 100;
-}
-
-.analyse-bar button {
-  width: 100%;
-  padding: 16px;
-  background: var(--lime);
-  color: #0c0c0d;
-  border: none;
-  border-radius: 14px;
-  font-family: 'Outfit', sans-serif;
-  font-weight: 700;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.15s;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
-
-.analyse-bar button:active { transform: scale(0.98); }
-.analyse-bar button:disabled { background: var(--s3); color: var(--muted); }
-
-/* ── Bottom nav ── */
-.bottom-nav {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: rgba(12,12,13,0.96);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border);
-  padding: 8px 0 calc(8px + var(--safe-bottom));
-  display: none;
-  z-index: 100;
-}
-
-.bottom-nav.visible { display: flex; }
-
-.nav-items {
-  display: flex;
-  width: 100%;
-}
-
-.nav-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  padding: 6px 4px;
-  cursor: pointer;
-  transition: all 0.15s;
-  border: none;
-  background: none;
-  color: var(--muted);
-}
-
-.nav-item.active { color: var(--lime); }
-.nav-item:active { transform: scale(0.9); }
-
-.nav-icon { font-size: 20px; line-height: 1; }
-.nav-label { font-size: 10px; font-family: 'DM Mono', monospace; letter-spacing: 0.5px; }
-
-/* ── Loading screen ── */
-.loading-screen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  gap: 20px;
-  text-align: center;
-  padding: 2rem;
-}
-
-.loading-ring {
-  width: 56px; height: 56px;
-  border: 2px solid var(--s3);
-  border-top-color: var(--lime);
-  border-right-color: rgba(200,240,122,0.3);
-  border-radius: 50%;
-  animation: spin 0.9s linear infinite;
-}
-
+/* ── PROCESSING SCREEN ── */
+.processing-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 55vh; text-align: center; gap: 18px; }
+.big-ring { width: 64px; height: 64px; border: 2px solid var(--s3); border-top-color: var(--lime); border-right-color: rgba(200,240,122,0.25); border-radius: 50%; animation: spin 0.85s linear infinite; flex-shrink: 0; }
 @keyframes spin { to { transform: rotate(360deg); } }
+.proc-title { font-family: 'Instrument Serif', serif; font-size: 1.4rem; color: var(--lime); }
+.proc-step { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--muted); min-height: 18px; }
+.proc-batch-info { font-size: 13px; color: var(--text); }
+.proc-batch-info span { color: var(--teal); font-weight: 600; }
+.proc-progress { width: 100%; max-width: 260px; }
 
-.loading-title {
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.3rem;
-  color: var(--lime);
-}
+/* ── INSIGHTS SCREEN ── */
+.insight-header { margin-bottom: 16px; }
+.insight-header h2 { font-family: 'Instrument Serif', serif; font-size: 1.5rem; font-weight: 400; margin-bottom: 4px; }
+.insight-header p { font-size: 13px; color: var(--muted); }
 
-.loading-step {
-  font-size: 12px;
-  font-family: 'DM Mono', monospace;
-  color: var(--muted);
-  min-height: 18px;
-}
+.mind-map { background: var(--s1); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 14px; }
+.mind-map-title { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 12px; }
+.theme-cloud { display: flex; flex-wrap: wrap; gap: 7px; }
+.theme-bubble { padding: 6px 13px; border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; }
+.theme-bubble:active { transform: scale(0.95); }
+.theme-bubble.size-lg { font-size: 15px; font-weight: 600; }
+.theme-bubble.size-md { font-size: 13px; font-weight: 500; }
+.theme-bubble.size-sm { font-size: 11px; }
+.theme-bubble.col-0 { background: rgba(200,240,122,0.1); color: var(--lime); border-color: rgba(200,240,122,0.2); }
+.theme-bubble.col-1 { background: rgba(122,240,200,0.1); color: var(--teal); border-color: rgba(122,240,200,0.2); }
+.theme-bubble.col-2 { background: rgba(240,122,200,0.1); color: var(--pink); border-color: rgba(240,122,200,0.2); }
+.theme-bubble.col-3 { background: rgba(240,200,122,0.1); color: var(--amber); border-color: rgba(240,200,122,0.2); }
 
-.progress-dots {
-  display: flex; gap: 6px;
-}
+.synthesis-card { background: var(--s1); border: 1px solid var(--border); border-left: 3px solid var(--lime); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; }
+.synthesis-card.teal { border-left-color: var(--teal); }
+.synthesis-card.amber { border-left-color: var(--amber); }
+.synthesis-card.pink { border-left-color: var(--pink); }
+.syn-label { font-size: 10px; font-family: 'DM Mono', monospace; color: var(--muted); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 5px; }
+.synthesis-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 5px; }
+.synthesis-card p { font-size: 13px; color: rgba(237,234,228,0.65); line-height: 1.65; }
 
-.dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--s3);
-  transition: background 0.3s;
-}
-.dot.active { background: var(--lime); }
+.no-results { text-align: center; padding: 3rem 1rem; }
+.no-results p { font-size: 13px; color: var(--muted); line-height: 1.6; }
 
-/* ── Results: Sequence ── */
-.seq-list { display: flex; flex-direction: column; gap: 12px; }
+/* ── BATCHES SCREEN ── */
+.batch-detail { background: var(--s1); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; overflow: hidden; }
+.batch-detail-header { padding: 13px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.batch-detail-header h3 { font-size: 14px; font-weight: 600; flex: 1; }
+.batch-chevron { color: var(--muted2); font-size: 12px; transition: transform 0.2s; }
+.batch-detail.open .batch-chevron { transform: rotate(90deg); }
+.batch-detail-body { display: none; padding: 12px 14px; }
+.batch-detail.open .batch-detail-body { display: block; }
+.batch-theme-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+.mini-tag { font-size: 10px; font-family: 'DM Mono', monospace; background: var(--s3); color: var(--teal); padding: 2px 8px; border-radius: 4px; }
+.batch-summary-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
 
-.seq-card {
-  background: var(--s1);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  overflow: hidden;
-}
+/* ── SETTINGS SCREEN ── */
+.settings-section { margin-bottom: 20px; }
+.settings-title { font-size: 11px; font-family: 'DM Mono', monospace; color: var(--muted); text-transform: uppercase; letter-spacing: 1.3px; margin-bottom: 10px; }
+.settings-card { background: var(--s1); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border); }
+.settings-row:last-child { border-bottom: none; }
+.settings-row-label { font-size: 14px; }
+.settings-row-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.settings-val { font-size: 13px; font-family: 'DM Mono', monospace; color: var(--lime); }
+.danger-btn { width: 100%; padding: 14px; background: rgba(240,122,122,0.08); color: var(--red); border: 1px solid rgba(240,122,122,0.2); border-radius: 14px; font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.danger-btn:active { transform: scale(0.97); }
 
-.seq-card-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-}
-
-.seq-num {
-  font-family: 'Instrument Serif', serif;
-  font-size: 2rem;
-  color: var(--lime);
-  line-height: 1;
-  min-width: 32px;
-}
-
-.seq-img {
-  width: 56px; height: 40px;
-  object-fit: cover;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  flex-shrink: 0;
-}
-
-.seq-meta { flex: 1; min-width: 0; }
-.seq-meta h3 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
-.seq-type-badge {
-  display: inline-block;
-  font-size: 10px;
-  font-family: 'DM Mono', monospace;
-  background: var(--s3);
-  color: var(--teal);
-  padding: 2px 7px;
-  border-radius: 4px;
-}
-
-.seq-body {
-  padding: 0 14px 14px;
-  font-size: 13px;
-  color: rgba(237,234,228,0.65);
-  line-height: 1.6;
-}
-
-.seq-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
-.tag {
-  font-size: 10px;
-  font-family: 'DM Mono', monospace;
-  background: var(--s3);
-  color: var(--lime);
-  padding: 2px 8px;
-  border-radius: 4px;
-  border: 1px solid rgba(200,240,122,0.12);
-}
-
-.seq-arrow {
-  text-align: center;
-  color: var(--muted2);
-  font-size: 18px;
-  margin: -4px 0;
-}
-
-.reasoning-box {
-  background: var(--s1);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 14px;
-  margin-bottom: 14px;
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.reasoning-box strong { color: var(--teal); font-weight: 500; }
-
-/* ── Results: Connections ── */
-.conn-list { display: flex; flex-direction: column; gap: 12px; }
-
-.conn-card {
-  background: var(--s1);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px;
-}
-
-.conn-top {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.conn-type-pill {
-  font-size: 10px;
-  font-family: 'DM Mono', monospace;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  padding: 3px 10px;
-  border-radius: 20px;
-}
-
-.pill-thematic { background: rgba(200,240,122,0.1); color: var(--lime); border: 1px solid rgba(200,240,122,0.2); }
-.pill-temporal { background: rgba(122,240,200,0.1); color: var(--teal); border: 1px solid rgba(122,240,200,0.2); }
-.pill-causal { background: rgba(240,122,200,0.1); color: var(--pink); border: 1px solid rgba(240,122,200,0.2); }
-.pill-contextual { background: rgba(240,200,122,0.1); color: var(--amber); border: 1px solid rgba(240,200,122,0.2); }
-
-.conn-title { font-size: 14px; font-weight: 600; }
-
-.conn-shots {
-  display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px;
-}
-
-.conn-shot-pill {
-  font-size: 10px;
-  font-family: 'DM Mono', monospace;
-  background: var(--s3);
-  padding: 3px 8px;
-  border-radius: 4px;
-  color: var(--muted);
-}
-
-.conn-desc {
-  font-size: 13px;
-  color: rgba(237,234,228,0.65);
-  line-height: 1.6;
-}
-
-/* ── Results: Critical ── */
-.critical-list { display: flex; flex-direction: column; gap: 12px; }
-
-.critical-card {
-  background: var(--s1);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px;
-  border-left: 3px solid var(--lime);
-}
-
-.critical-card.insight { border-left-color: var(--teal); }
-.critical-card.warning { border-left-color: var(--amber); }
-.critical-card.question { border-left-color: var(--pink); }
-
-.critical-label {
-  font-size: 10px;
-  font-family: 'DM Mono', monospace;
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
-  color: var(--muted);
-  margin-bottom: 5px;
-}
-
-.critical-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
-.critical-card p { font-size: 13px; color: rgba(237,234,228,0.65); line-height: 1.6; }
-
-/* ── Results: Individual ── */
-.ind-selector {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  margin-bottom: 14px;
-  scrollbar-width: none;
-}
-.ind-selector::-webkit-scrollbar { display: none; }
-
-.ind-thumb-btn {
-  flex-shrink: 0;
-  width: 52px; height: 72px;
-  border-radius: 8px;
-  overflow: hidden;
-  border: 2px solid var(--border);
-  cursor: pointer;
-  transition: border-color 0.15s;
-  background: none; padding: 0;
-}
-
-.ind-thumb-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.ind-thumb-btn.active { border-color: var(--lime); }
-
-.ind-big-img {
-  width: 100%;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  display: block;
-  margin-bottom: 14px;
-  max-height: 55vw;
-  object-fit: cover;
-}
-
-.data-rows { display: flex; flex-direction: column; gap: 8px; }
-
-.data-row {
-  background: var(--s1);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 12px;
-}
-
-.data-row-label {
-  font-size: 10px;
-  font-family: 'DM Mono', monospace;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 3px;
-}
-
-.data-row-val { font-size: 13px; color: var(--text); line-height: 1.5; }
-.data-row .tag-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
-
-/* ── Misc ── */
-.theme-tag {
-  display: inline-block;
-  background: rgba(200,240,122,0.08);
-  border: 1px solid rgba(200,240,122,0.2);
-  color: var(--lime);
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-style: italic;
-  font-family: 'Instrument Serif', serif;
-  margin-bottom: 14px;
-  width: 100%;
-  text-align: center;
-}
+/* ── BOTTOM NAV ── */
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,10,11,0.96); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border); padding: 8px 0 calc(6px + var(--safe-bottom)); z-index: 100; }
+.nav-items { display: flex; width: 100%; }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 5px 4px; cursor: pointer; border: none; background: none; color: var(--muted); transition: color 0.15s; }
+.nav-item.active { color: var(--lime); }
+.nav-item:active { opacity: 0.6; }
+.nav-icon { font-size: 19px; line-height: 1; }
+.nav-label { font-size: 9px; font-family: 'DM Mono', monospace; letter-spacing: 0.3px; }
 </style>
 </head>
 <body>
-
 <div class="app">
+
   <div class="topbar">
     <div class="logo">Cogniscope</div>
-    <div class="topbar-right">
-      <span class="count-pill" id="countPill">0 shots</span>
-      <div class="icon-btn" id="addMoreBtn" onclick="document.getElementById('fileInput').click()" title="Add more">＋</div>
+    <div class="topbar-meta">
+      <div class="status-pill" id="statusPill">Ready</div>
     </div>
   </div>
 
-  <!-- Install banner (iOS) -->
-  <div class="install-banner" id="installBanner">
-    <div class="install-icon">📲</div>
-    <div class="install-text">
-      <strong>Add to Home Screen</strong>
-      <span>Works like a native app — no browser chrome</span>
-      <div class="install-steps">
-        Tap <span>Share ↑</span> then <span>Add to Home Screen</span>
-      </div>
-    </div>
-    <button class="dismiss-btn" onclick="dismissBanner()">×</button>
-  </div>
+  <div class="scroll" id="scroll">
 
-  <div class="scroll-area" id="scrollArea">
-
-    <!-- Upload screen -->
+    <!-- UPLOAD -->
     <div class="screen active" id="screen-upload">
-      <div class="drop-zone" id="dropZone">
-        <div class="upload-icon">🖼</div>
-        <h2>Upload Screenshots</h2>
-        <p>Select multiple screenshots from your library — Claude will read, connect and organise them.</p>
-        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-          <span>📂</span> Choose Screenshots
-        </button>
-      </div>
-      <input type="file" id="fileInput" multiple accept="image/*">
 
-      <div id="thumbSection" style="display:none">
-        <div class="section-label" style="margin-bottom:10px">Selected</div>
-        <div class="thumb-grid" id="thumbGrid"></div>
+      <div class="install-tip" id="installTip">
+        <strong>📲 Add to Home Screen</strong>
+        Tap Share ↑ → "Add to Home Screen" to use like a native app. Results are saved between sessions.
       </div>
+
+      <div class="upload-hero">
+        <div class="icon">🖼️</div>
+        <h2>Your Screenshot Memory</h2>
+        <p>Select all your screenshots at once — Cogniscope processes them in batches and builds a picture of your mind over time.</p>
+        <button class="big-btn" onclick="document.getElementById('fileInput').click()">
+          📂 Choose Screenshots
+        </button>
+        <input type="file" id="fileInput" multiple accept="image/*">
+      </div>
+
+      <div class="queue-box" id="queueBox" style="display:none">
+        <div class="queue-row">
+          <span class="queue-label">Selected</span>
+          <span class="queue-val lime" id="qTotal">0</span>
+        </div>
+        <div class="queue-row">
+          <span class="queue-label">Processed</span>
+          <span class="queue-val teal" id="qDone">0</span>
+        </div>
+        <div class="queue-row">
+          <span class="queue-label">Remaining</span>
+          <span class="queue-val amber" id="qLeft">0</span>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-track"><div class="progress-fill" id="qProgressFill" style="width:0%"></div></div>
+          <div class="progress-label" id="qProgressLabel">0 of 0 batches</div>
+        </div>
+      </div>
+
+      <div id="actionBtns" style="display:none">
+        <button class="big-btn" id="startBtn" onclick="startProcessing()">✦ Start Analysis</button>
+        <button class="big-btn secondary" id="resumeBtn" style="display:none" onclick="resumeProcessing()">▶ Resume Processing</button>
+        <button class="big-btn secondary" onclick="document.getElementById('fileInput').click()">＋ Add More Screenshots</button>
+      </div>
+
+      <div id="batchHistoryWrap" style="display:none; margin-top:18px">
+        <div class="queue-label" style="margin-bottom:10px;font-size:11px;text-transform:uppercase;letter-spacing:1.2px">Batch Queue</div>
+        <div class="batch-list" id="batchHistoryList"></div>
+      </div>
+
     </div>
 
-    <!-- Loading screen -->
-    <div class="screen" id="screen-loading">
-      <div class="loading-screen">
-        <div class="loading-ring"></div>
-        <div class="loading-title">Analysing…</div>
-        <div class="loading-step" id="loadingStep">Reading screenshot content</div>
-        <div class="progress-dots" id="progressDots">
-          <div class="dot active"></div>
-          <div class="dot"></div>
-          <div class="dot"></div>
-          <div class="dot"></div>
-          <div class="dot"></div>
+    <!-- PROCESSING -->
+    <div class="screen" id="screen-processing">
+      <div class="processing-wrap">
+        <div class="big-ring"></div>
+        <div class="proc-title">Thinking…</div>
+        <div class="proc-batch-info">Batch <span id="procBatchNum">1</span> of <span id="procBatchTotal">1</span></div>
+        <div class="proc-step" id="procStep">Reading screenshots…</div>
+        <div class="proc-progress">
+          <div class="progress-track" style="margin-top:8px"><div class="progress-fill" id="procFill" style="width:0%"></div></div>
         </div>
       </div>
     </div>
 
-    <!-- Sequence screen -->
-    <div class="screen" id="screen-sequence">
-      <div class="reasoning-box" id="seqReasoning"></div>
-      <div class="seq-list" id="seqList"></div>
+    <!-- INSIGHTS -->
+    <div class="screen" id="screen-insights">
+      <div class="insight-header">
+        <h2>Your Mind</h2>
+        <p id="insightSubtitle">Synthesised from your screenshots</p>
+      </div>
+      <div id="insightsContent">
+        <div class="no-results"><p>No results yet.<br>Upload and analyse your screenshots first.</p></div>
+      </div>
     </div>
 
-    <!-- Connections screen -->
-    <div class="screen" id="screen-connections">
-      <div class="conn-list" id="connList"></div>
+    <!-- BATCHES -->
+    <div class="screen" id="screen-batches">
+      <div style="margin-bottom:14px">
+        <div class="queue-label" style="font-size:11px;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:4px">Completed Batches</div>
+        <div style="font-size:13px;color:var(--muted)" id="batchCountLabel">0 batches processed</div>
+      </div>
+      <div id="batchDetailList"></div>
     </div>
 
-    <!-- Critical screen -->
-    <div class="screen" id="screen-critical">
-      <div class="critical-list" id="critList"></div>
+    <!-- SETTINGS -->
+    <div class="screen" id="screen-settings">
+      <div class="settings-section">
+        <div class="settings-title">Stats</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div><div class="settings-row-label">Screenshots processed</div></div>
+            <div class="settings-val" id="statShots">0</div>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-row-label">Batches completed</div></div>
+            <div class="settings-val" id="statBatches">0</div>
+          </div>
+          <div class="settings-row">
+            <div><div class="settings-row-label">Themes found</div></div>
+            <div class="settings-val" id="statThemes">0</div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-title">Storage</div>
+        <div class="settings-card">
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Saved results</div>
+              <div class="settings-row-sub">Results survive page refresh</div>
+            </div>
+            <div class="settings-val">✓ On</div>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Batch size</div>
+              <div class="settings-row-sub">Images per API call</div>
+            </div>
+            <div class="settings-val">15</div>
+          </div>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-title">Data</div>
+        <button class="danger-btn" onclick="clearAllData()">🗑 Clear All Saved Data</button>
+      </div>
     </div>
 
-    <!-- Individual screen -->
-    <div class="screen" id="screen-individual">
-      <div class="ind-selector" id="indSelector"></div>
-      <img class="ind-big-img" id="indBigImg" src="" alt="">
-      <div class="data-rows" id="indDataRows"></div>
-    </div>
+  </div><!-- end scroll -->
 
-  </div><!-- end scroll area -->
-
-  <!-- Upload action bar -->
-  <div class="analyse-bar" id="analyseBar">
-    <button id="analyseBtn" disabled onclick="runAnalysis()">
-      <span>✦</span> Analyse Screenshots
-    </button>
-  </div>
-
-  <!-- Bottom nav (shown after results) -->
-  <nav class="bottom-nav" id="bottomNav">
+  <nav class="bottom-nav">
     <div class="nav-items">
-      <button class="nav-item active" data-screen="sequence" onclick="switchScreen(this)">
-        <span class="nav-icon">⟳</span>
-        <span class="nav-label">Sequence</span>
+      <button class="nav-item active" data-screen="upload" onclick="switchTab(this)">
+        <span class="nav-icon">⊕</span><span class="nav-label">Upload</span>
       </button>
-      <button class="nav-item" data-screen="connections" onclick="switchScreen(this)">
-        <span class="nav-icon">◈</span>
-        <span class="nav-label">Links</span>
+      <button class="nav-item" data-screen="insights" onclick="switchTab(this)">
+        <span class="nav-icon">◎</span><span class="nav-label">Insights</span>
       </button>
-      <button class="nav-item" data-screen="critical" onclick="switchScreen(this)">
-        <span class="nav-icon">◎</span>
-        <span class="nav-label">Critical</span>
+      <button class="nav-item" data-screen="batches" onclick="switchTab(this)">
+        <span class="nav-icon">≡</span><span class="nav-label">Batches</span>
       </button>
-      <button class="nav-item" data-screen="individual" onclick="switchScreen(this)">
-        <span class="nav-icon">◻</span>
-        <span class="nav-label">Each</span>
-      </button>
-      <button class="nav-item" data-screen="upload" onclick="switchScreen(this)">
-        <span class="nav-icon">＋</span>
-        <span class="nav-label">Add</span>
+      <button class="nav-item" data-screen="settings" onclick="switchTab(this)">
+        <span class="nav-icon">⚙</span><span class="nav-label">Settings</span>
       </button>
     </div>
   </nav>
@@ -749,312 +329,456 @@ html, body {
 </div>
 
 <script>
-const screenshots = [];
-let results = null;
-let activeIndIdx = 0;
+// ── State ──
+const BATCH_SIZE = 15;
+const STORAGE_KEY = 'cogniscope_v3';
 
-// Install banner — hide if already standalone
+let queue = [];        // {name, dataUrl} waiting
+let batches = [];      // completed batch results from storage
+let isProcessing = false;
+let currentBatchIdx = 0;
+
+// ── Persistence ──
+function save() {
+  try {
+    const payload = { batches, processedCount: batches.reduce((a,b) => a + b.count, 0) };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  } catch(e) { console.warn('Save failed (storage full?):', e.message); }
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      batches = d.batches || [];
+    }
+  } catch(e) { batches = []; }
+}
+
+// ── Boot ──
+load();
 if (window.navigator.standalone) {
-  document.getElementById('installBanner').style.display = 'none';
+  document.getElementById('installTip').style.display = 'none';
 }
+renderInsights();
+renderBatchDetails();
+updateSettings();
 
-function dismissBanner() {
-  document.getElementById('installBanner').style.display = 'none';
-}
+// ── File input ──
+document.getElementById('fileInput').addEventListener('change', e => {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
 
-// File handling
-document.getElementById('fileInput').addEventListener('change', e => handleFiles(e.target.files));
-
-const dropZone = document.getElementById('dropZone');
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleFiles(e.dataTransfer.files); });
-
-function handleFiles(files) {
-  Array.from(files).forEach(file => {
-    if (!file.type.startsWith('image/')) return;
+  let loaded = 0;
+  files.forEach(file => {
+    if (!file.type.startsWith('image/')) { loaded++; checkAllLoaded(); return; }
     const reader = new FileReader();
-    reader.onload = e => {
-      screenshots.push({ name: file.name, dataUrl: e.target.result, status: 'pending' });
-      renderThumbs();
-      updateAnalyseBtn();
+    reader.onload = ev => {
+      queue.push({ name: file.name, dataUrl: ev.target.result });
+      loaded++;
+      checkAllLoaded();
     };
+    reader.onerror = () => { loaded++; checkAllLoaded(); };
     reader.readAsDataURL(file);
   });
+
+  function checkAllLoaded() {
+    if (loaded === files.length) onQueueReady();
+  }
+});
+
+function onQueueReady() {
+  const processed = batches.reduce((a,b) => a + b.count, 0);
+  const hasPending = queue.length > 0;
+  const hasHistory = batches.length > 0;
+
+  document.getElementById('queueBox').style.display = hasPending || hasHistory ? 'block' : 'none';
+  document.getElementById('actionBtns').style.display = hasPending ? 'block' : 'none';
+
+  // Show resume if there's a partial queue left
+  const canResume = queue.length > 0 && batches.length > 0;
+  document.getElementById('resumeBtn').style.display = canResume ? 'block' : 'none';
+  document.getElementById('startBtn').style.display = 'block';
+
+  updateQueueUI();
+  renderBatchHistory();
 }
 
-function renderThumbs() {
-  const count = screenshots.length;
-  document.getElementById('countPill').textContent = count + ' shot' + (count !== 1 ? 's' : '');
-  const section = document.getElementById('thumbSection');
-  const grid = document.getElementById('thumbGrid');
-  if (count === 0) { section.style.display = 'none'; return; }
-  section.style.display = 'block';
-  grid.innerHTML = screenshots.map((s, i) => `
-    <div class="thumb-card ${s.status === 'analysed' ? 'analysed' : ''}">
-      <img src="${s.dataUrl}" alt="${s.name}" loading="lazy">
-      ${s.status === 'analysed' ? '<div class="badge">✓</div>' : ''}
-      <button class="remove" onclick="removeShot(event,${i})">×</button>
+function updateQueueUI() {
+  const total = queue.length + batches.reduce((a,b) => a + b.count, 0);
+  const done = batches.reduce((a,b) => a + b.count, 0);
+  const left = queue.length;
+  const totalBatches = Math.ceil(total / BATCH_SIZE);
+  const doneBatches = batches.length;
+
+  document.getElementById('qTotal').textContent = total;
+  document.getElementById('qDone').textContent = done;
+  document.getElementById('qLeft').textContent = left;
+
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('qProgressFill').style.width = pct + '%';
+  document.getElementById('qProgressLabel').textContent = doneBatches + ' of ' + totalBatches + ' batches';
+}
+
+function renderBatchHistory() {
+  const wrap = document.getElementById('batchHistoryWrap');
+  const list = document.getElementById('batchHistoryList');
+  if (batches.length === 0 && queue.length === 0) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'block';
+
+  const totalBatches = Math.ceil((queue.length + batches.reduce((a,b)=>a+b.count,0)) / BATCH_SIZE);
+
+  let html = batches.map((b, i) => `
+    <div class="batch-item">
+      <div class="batch-dot"></div>
+      <div class="batch-info">
+        <div class="batch-name">Batch ${i+1} — ${b.count} screenshots</div>
+        <div class="batch-sub">${(b.themes||[]).slice(0,3).join(' · ')}</div>
+      </div>
+      <div class="batch-arrow">✓</div>
     </div>
   `).join('');
-}
 
-function removeShot(e, i) {
-  e.stopPropagation();
-  screenshots.splice(i, 1);
-  renderThumbs();
-  updateAnalyseBtn();
-}
-
-function updateAnalyseBtn() {
-  const btn = document.getElementById('analyseBtn');
-  const n = screenshots.length;
-  btn.disabled = n === 0;
-  btn.innerHTML = n === 0
-    ? '<span>✦</span> Analyse Screenshots'
-    : `<span>✦</span> Analyse ${n} Screenshot${n !== 1 ? 's' : ''}`;
-}
-
-// Screens
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + id).classList.add('active');
-  document.getElementById('scrollArea').scrollTop = 0;
-}
-
-function switchScreen(btn) {
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  showScreen(btn.dataset.screen);
-}
-
-// Analysis
-async function runAnalysis() {
-  if (screenshots.length === 0) return;
-
-  document.getElementById('analyseBar').style.display = 'none';
-  document.getElementById('bottomNav').classList.remove('visible');
-  showScreen('loading');
-
-  const steps = [
-    'Reading screenshot content…',
-    'Detecting themes and entities…',
-    'Inferring sequence…',
-    'Mapping connections…',
-    'Critical thinking…',
-    'Synthesising…'
-  ];
-  let si = 0;
-  const dots = document.querySelectorAll('.dot');
-  const stepEl = document.getElementById('loadingStep');
-  const stepTimer = setInterval(() => {
-    si = (si + 1) % steps.length;
-    stepEl.textContent = steps[si];
-    dots.forEach((d, i) => d.classList.toggle('active', i === si % dots.length));
-  }, 1800);
-
-  try {
-    const userContent = [];
-    for (let i = 0; i < screenshots.length; i++) {
-      const s = screenshots[i];
-      const b64 = s.dataUrl.split(',')[1];
-      const mime = s.dataUrl.split(';')[0].split(':')[1];
-      userContent.push({ type: 'text', text: `Screenshot ${i+1} ("${s.name}"):` });
-      userContent.push({ type: 'image', source: { type: 'base64', media_type: mime, data: b64 } });
-    }
-    userContent.push({ type: 'text', text: `Analyse all ${screenshots.length} screenshots. Return ONLY valid JSON, no markdown fences:
-{
-  "screenshots": [
-    {
-      "index": 0,
-      "title": "short title",
-      "summary": "2-3 sentence summary",
-      "key_entities": ["entity1"],
-      "content_type": "type",
-      "timestamp_hint": "any date/time clue or null",
-      "tags": ["tag1","tag2","tag3"]
-    }
-  ],
-  "sequence": {
-    "ordered_indices": [0,1,2],
-    "reasoning": "why this order",
-    "confidence": "high|medium|low",
-    "sequence_type": "e.g. chronological/workflow/narrative"
-  },
-  "connections": [
-    {
-      "type": "thematic|temporal|causal|contextual",
-      "screenshot_indices": [0,1],
-      "title": "connection title",
-      "description": "what connects them"
-    }
-  ],
-  "critical_analysis": {
-    "overall_theme": "one sentence",
-    "summary": "paragraph summary",
-    "key_insights": [{"title":"","body":""}],
-    "warnings": [{"title":"","body":""}],
-    "open_questions": [{"title":"","body":""}]
+  // pending batches
+  const pending = Math.ceil(queue.length / BATCH_SIZE);
+  for (let i = 0; i < pending; i++) {
+    const start = i * BATCH_SIZE;
+    const count = Math.min(BATCH_SIZE, queue.length - start);
+    html += `
+      <div class="batch-item">
+        <div class="batch-dot pending"></div>
+        <div class="batch-info">
+          <div class="batch-name">Batch ${batches.length + i + 1} — ${count} screenshots</div>
+          <div class="batch-sub">Pending</div>
+        </div>
+      </div>`;
   }
+
+  list.innerHTML = html;
+}
+
+// ── Processing ──
+async function startProcessing() {
+  if (queue.length === 0) return;
+  currentBatchIdx = batches.length;
+  await processQueue();
+}
+
+async function resumeProcessing() {
+  await processQueue();
+}
+
+async function processQueue() {
+  if (isProcessing || queue.length === 0) return;
+  isProcessing = true;
+
+  document.getElementById('actionBtns').style.display = 'none';
+  switchTabByName('upload');
+  showScreen('processing');
+  updateStatusPill('processing');
+
+  const totalBatches = Math.ceil(queue.length / BATCH_SIZE) + batches.length;
+  let batchNum = batches.length + 1;
+
+  while (queue.length > 0) {
+    const batch = queue.splice(0, BATCH_SIZE);
+    const totalDone = batches.length;
+
+    document.getElementById('procBatchNum').textContent = batchNum;
+    document.getElementById('procBatchTotal').textContent = totalBatches;
+    document.getElementById('procFill').style.width = Math.round((totalDone / totalBatches) * 100) + '%';
+
+    const steps = ['Reading screenshots…','Detecting themes…','Finding patterns…','Extracting insights…','Saving results…'];
+    let si = 0;
+    const stepEl = document.getElementById('procStep');
+    const stepTimer = setInterval(() => { si = (si+1)%steps.length; stepEl.textContent = steps[si]; }, 1600);
+
+    try {
+      const result = await analyseBatch(batch, batchNum, totalBatches);
+      batches.push(result);
+      save();
+      batchNum++;
+      clearInterval(stepTimer);
+      updateQueueUI();
+    } catch(err) {
+      clearInterval(stepTimer);
+      // put batch back
+      queue.unshift(...batch);
+      isProcessing = false;
+      showScreen('upload');
+      updateStatusPill('error');
+      document.getElementById('actionBtns').style.display = 'block';
+      document.getElementById('resumeBtn').style.display = 'block';
+      document.getElementById('startBtn').style.display = 'none';
+      renderBatchHistory();
+      alert('Batch ' + batchNum + ' failed: ' + err.message + '\n\nTap Resume to try again.');
+      return;
+    }
+  }
+
+  isProcessing = false;
+  updateStatusPill('done');
+  renderInsights();
+  renderBatchDetails();
+  updateSettings();
+  renderBatchHistory();
+  updateQueueUI();
+
+  // Go to insights
+  const insBtn = document.querySelector('[data-screen="insights"]');
+  switchTab(insBtn);
+}
+
+async function analyseBatch(batch, batchNum, totalBatches) {
+  const userContent = [];
+  for (let i = 0; i < batch.length; i++) {
+    const s = batch[i];
+    const mime = s.dataUrl.split(';')[0].split(':')[1];
+    const b64 = s.dataUrl.split(',')[1];
+    userContent.push({ type: 'text', text: `Image ${i+1}:` });
+    userContent.push({ type: 'image', source: { type: 'base64', media_type: mime, data: b64 } });
+  }
+
+  // Include prior themes for continuity
+  const priorThemes = batches.flatMap(b => b.themes || []).slice(-30);
+  const priorContext = priorThemes.length > 0
+    ? `\n\nFor context, themes seen in previous batches include: ${[...new Set(priorThemes)].join(', ')}.`
+    : '';
+
+  userContent.push({ type: 'text', text: `These are ${batch.length} screenshots from someone's phone (batch ${batchNum} of ${totalBatches}). They are things this person wanted to remember or save.${priorContext}
+
+Analyse what they reveal about this person's interests, thinking, and life. Return ONLY valid JSON, no markdown:
+{
+  "count": ${batch.length},
+  "themes": ["theme1","theme2","theme3","theme4","theme5"],
+  "summary": "2-3 sentences on what this batch reveals about the person",
+  "insights": [
+    {"title": "insight title", "body": "what this reveals about their thinking or interests"}
+  ],
+  "content_types": ["type1","type2"],
+  "time_period_hint": "any clues about when these are from, or null"
 }` });
 
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: 'You are an expert analyst. Respond ONLY with valid JSON, no markdown fences.',
+      messages: [{ role: 'user', content: userContent }]
+    })
+  });
+
+  if (!res.ok) throw new Error('API error ' + res.status);
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  const raw = data.content.map(b => b.text||'').join('');
+  return JSON.parse(raw.replace(/```json|```/g,'').trim());
+}
+
+// ── Insights rendering ──
+async function renderInsights() {
+  const el = document.getElementById('insightsContent');
+  const subtitle = document.getElementById('insightSubtitle');
+
+  if (batches.length === 0) {
+    el.innerHTML = '<div class="no-results"><p>No results yet.<br>Upload and analyse your screenshots first.</p></div>';
+    return;
+  }
+
+  const totalShots = batches.reduce((a,b) => a + b.count, 0);
+  subtitle.textContent = `${totalShots} screenshots · ${batches.length} batch${batches.length!==1?'es':''}`;
+
+  // Gather all themes with frequency
+  const themeFreq = {};
+  batches.forEach(b => (b.themes||[]).forEach(t => { themeFreq[t] = (themeFreq[t]||0) + 1; }));
+  const sortedThemes = Object.entries(themeFreq).sort((a,b) => b[1]-a[1]);
+
+  // Build theme cloud HTML
+  const cols = ['col-0','col-1','col-2','col-3'];
+  const maxFreq = sortedThemes[0]?.[1] || 1;
+  const themeClouHtml = sortedThemes.slice(0, 24).map(([t, f], i) => {
+    const size = f >= maxFreq * 0.6 ? 'size-lg' : f >= maxFreq * 0.3 ? 'size-md' : 'size-sm';
+    const col = cols[i % 4];
+    return `<span class="theme-bubble ${size} ${col}">${t}</span>`;
+  }).join('');
+
+  // All summaries
+  const allSummaries = batches.map(b => b.summary).filter(Boolean).join(' ');
+  const allInsights = batches.flatMap(b => b.insights||[]);
+
+  // If enough batches, do a meta-synthesis via API
+  let synthHtml = '';
+  if (batches.length >= 2) {
+    // Use stored synthesis if available, otherwise generate
+    const stored = getStoredSynthesis();
+    if (stored) {
+      synthHtml = renderSynthesisCards(stored);
+    } else {
+      synthHtml = renderSynthesisCards(null, allSummaries, allInsights);
+      // trigger async synthesis
+      generateSynthesis(allSummaries, allInsights, sortedThemes.slice(0,10).map(t=>t[0]));
+    }
+  }
+
+  el.innerHTML = `
+    <div class="mind-map">
+      <div class="mind-map-title">What you've been thinking about</div>
+      <div class="theme-cloud">${themeClouHtml}</div>
+    </div>
+    <div id="synthesisArea">${synthHtml}</div>
+    ${allInsights.slice(0,6).map(ins => `
+      <div class="synthesis-card teal">
+        <div class="syn-label">From your screenshots</div>
+        <h3>${ins.title}</h3>
+        <p>${ins.body}</p>
+      </div>
+    `).join('')}
+  `;
+}
+
+function getStoredSynthesis() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY + '_synthesis');
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+async function generateSynthesis(summaries, insights, themes) {
+  try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
-        system: 'You are an expert analyst. Respond ONLY with valid JSON, no markdown, no preamble.',
-        messages: [{ role: 'user', content: userContent }]
+        max_tokens: 800,
+        system: 'You are a thoughtful analyst. Respond ONLY with valid JSON, no markdown.',
+        messages: [{
+          role: 'user',
+          content: `Based on analysis of someone's saved screenshots, here are the batch summaries:\n${summaries}\n\nTop themes: ${themes.join(', ')}\n\nWrite a personal synthesis. Return JSON only:\n{"portrait":"2-3 sentences describing who this person seems to be based on what they save","patterns":["pattern1","pattern2","pattern3"],"observation":"one surprising or interesting observation about their interests"}`
+        }]
       })
     });
-
     const data = await res.json();
-    const raw = data.content.map(b => b.text || '').join('');
-    results = JSON.parse(raw.replace(/```json|```/g, '').trim());
-
-    clearInterval(stepTimer);
-    screenshots.forEach(s => s.status = 'analysed');
-    renderThumbs();
-    renderAllResults();
-
-    document.getElementById('bottomNav').classList.add('visible');
-    document.getElementById('analyseBar').style.display = 'none';
-
-    // Go to sequence view
-    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-    document.querySelector('[data-screen="sequence"]').classList.add('active');
-    showScreen('sequence');
-
-  } catch (err) {
-    clearInterval(stepTimer);
-    document.getElementById('analyseBar').style.display = 'block';
-    document.getElementById('analyseBar').querySelector('button').disabled = false;
-    updateAnalyseBtn();
-    showScreen('upload');
-    alert('Analysis failed: ' + err.message);
-    screenshots.forEach(s => s.status = 'pending');
-    renderThumbs();
-  }
+    const raw = data.content.map(b=>b.text||'').join('');
+    const syn = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    localStorage.setItem(STORAGE_KEY + '_synthesis', JSON.stringify(syn));
+    // Update the synthesis area if still on insights
+    const area = document.getElementById('synthesisArea');
+    if (area) area.innerHTML = renderSynthesisCards(syn);
+  } catch(e) {}
 }
 
-function renderAllResults() {
-  renderSequence();
-  renderConnections();
-  renderCritical();
-  renderIndividual(0);
-}
-
-function renderSequence() {
-  const { sequence, screenshots: shots } = results;
-  const ordered = sequence.ordered_indices.map(i => ({ ...shots[i], origIdx: i }));
-
-  document.getElementById('seqReasoning').innerHTML =
-    `<strong>${sequence.sequence_type}</strong> · ${sequence.reasoning} <span style="color:var(--teal);font-family:'DM Mono',monospace;font-size:10px;margin-left:4px">${sequence.confidence} confidence</span>`;
-
-  document.getElementById('seqList').innerHTML = ordered.map((s, pos) => `
-    <div class="seq-card">
-      <div class="seq-card-header">
-        <div class="seq-num">${pos + 1}</div>
-        <img class="seq-img" src="${screenshots[s.origIdx].dataUrl}" alt="">
-        <div class="seq-meta">
-          <h3>${s.title}</h3>
-          <span class="seq-type-badge">${s.content_type}</span>
+function renderSynthesisCards(syn, fallbackSummaries, fallbackInsights) {
+  if (syn) {
+    return `
+      <div class="synthesis-card">
+        <div class="syn-label">Your portrait</div>
+        <p>${syn.portrait}</p>
+      </div>
+      ${(syn.patterns||[]).map(p => `
+        <div class="synthesis-card amber">
+          <div class="syn-label">Pattern</div>
+          <p>${p}</p>
         </div>
+      `).join('')}
+      ${syn.observation ? `
+        <div class="synthesis-card pink">
+          <div class="syn-label">Interesting observation</div>
+          <p>${syn.observation}</p>
+        </div>` : ''}
+    `;
+  }
+  // fallback while generating
+  return `<div class="synthesis-card" style="opacity:0.5"><div class="syn-label">Portrait</div><p>Generating synthesis…</p></div>`;
+}
+
+// ── Batch details ──
+function renderBatchDetails() {
+  const list = document.getElementById('batchDetailList');
+  const label = document.getElementById('batchCountLabel');
+  label.textContent = batches.length + ' batch' + (batches.length!==1?'es':'') + ' processed · ' + batches.reduce((a,b)=>a+b.count,0) + ' screenshots';
+
+  if (batches.length === 0) {
+    list.innerHTML = '<div class="no-results"><p>No batches yet.</p></div>';
+    return;
+  }
+
+  list.innerHTML = batches.map((b, i) => `
+    <div class="batch-detail" id="bd-${i}">
+      <div class="batch-detail-header" onclick="toggleBatch(${i})">
+        <h3>Batch ${i+1} <span style="color:var(--muted);font-size:12px;font-weight:400">— ${b.count} screenshots</span></h3>
+        <span class="batch-chevron">▶</span>
       </div>
-      <div class="seq-body">
-        ${s.summary}
-        <div class="seq-tags">${(s.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+      <div class="batch-detail-body">
+        ${b.time_period_hint ? `<div style="font-size:12px;color:var(--teal);font-family:'DM Mono',monospace;margin-bottom:8px">📅 ${b.time_period_hint}</div>` : ''}
+        <div class="batch-theme-row">${(b.themes||[]).map(t=>`<span class="mini-tag">${t}</span>`).join('')}</div>
+        <p class="batch-summary-text">${b.summary||''}</p>
       </div>
     </div>
-    ${pos < ordered.length - 1 ? '<div class="seq-arrow">↓</div>' : ''}
   `).join('');
 }
 
-function renderConnections() {
-  const { connections, screenshots: shots } = results;
-  document.getElementById('connList').innerHTML = connections.map(c => `
-    <div class="conn-card">
-      <div class="conn-top">
-        <span class="conn-type-pill pill-${c.type}">${c.type}</span>
-        <span class="conn-title">${c.title}</span>
-      </div>
-      <div class="conn-shots">
-        ${c.screenshot_indices.map(i => `<span class="conn-shot-pill">#${i+1} ${(shots[i]?.title||'').slice(0,18)}</span>`).join('')}
-      </div>
-      <p class="conn-desc">${c.description}</p>
-    </div>
-  `).join('');
+function toggleBatch(i) {
+  document.getElementById('bd-' + i).classList.toggle('open');
 }
 
-function renderCritical() {
-  const ca = results.critical_analysis;
-  let html = `<div class="theme-tag">${ca.overall_theme}</div>`;
-
-  html += `<div class="critical-card" style="border-left-color:var(--lime)">
-    <div class="critical-label">Overview</div>
-    <p>${ca.summary}</p>
-  </div>`;
-
-  (ca.key_insights||[]).forEach(ins => {
-    html += `<div class="critical-card insight">
-      <div class="critical-label">Key insight</div>
-      <h3>${ins.title}</h3>
-      <p>${ins.body}</p>
-    </div>`;
-  });
-
-  (ca.warnings||[]).forEach(w => {
-    html += `<div class="critical-card warning">
-      <div class="critical-label">Gap / Warning</div>
-      <h3>${w.title}</h3>
-      <p>${w.body}</p>
-    </div>`;
-  });
-
-  (ca.open_questions||[]).forEach(q => {
-    html += `<div class="critical-card question">
-      <div class="critical-label">Open question</div>
-      <h3>${q.title}</h3>
-      <p>${q.body}</p>
-    </div>`;
-  });
-
-  document.getElementById('critList').innerHTML = html;
+// ── Settings ──
+function updateSettings() {
+  const shots = batches.reduce((a,b)=>a+b.count,0);
+  const themes = new Set(batches.flatMap(b=>b.themes||[])).size;
+  document.getElementById('statShots').textContent = shots;
+  document.getElementById('statBatches').textContent = batches.length;
+  document.getElementById('statThemes').textContent = themes;
 }
 
-function renderIndividual(idx) {
-  activeIndIdx = idx;
-  const shots = results.screenshots;
-  const s = shots[idx];
+function clearAllData() {
+  if (!confirm('Delete all saved analysis data? This cannot be undone.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(STORAGE_KEY + '_synthesis');
+  batches = [];
+  queue = [];
+  renderInsights();
+  renderBatchDetails();
+  updateSettings();
+  document.getElementById('queueBox').style.display = 'none';
+  document.getElementById('actionBtns').style.display = 'none';
+  document.getElementById('batchHistoryWrap').style.display = 'none';
+  updateStatusPill('ready');
+  alert('All data cleared.');
+}
 
-  document.getElementById('indSelector').innerHTML = shots.map((ss, i) => `
-    <button class="ind-thumb-btn ${i === idx ? 'active' : ''}" onclick="renderIndividual(${i})">
-      <img src="${screenshots[i].dataUrl}" alt="">
-    </button>
-  `).join('');
+// ── Nav ──
+function switchTab(btn) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  showScreen(btn.dataset.screen);
+}
 
-  document.getElementById('indBigImg').src = screenshots[idx].dataUrl;
+function switchTabByName(name) {
+  const btn = document.querySelector('[data-screen="' + name + '"]');
+  if (btn) switchTab(btn);
+}
 
-  document.getElementById('indDataRows').innerHTML = `
-    <div class="data-row">
-      <div class="data-row-label">Content type</div>
-      <div class="data-row-val">${s.content_type}</div>
-    </div>
-    <div class="data-row">
-      <div class="data-row-label">Summary</div>
-      <div class="data-row-val">${s.summary}</div>
-    </div>
-    <div class="data-row">
-      <div class="data-row-label">Key entities</div>
-      <div class="tag-list">${(s.key_entities||[]).map(e => `<span class="tag">${e}</span>`).join('')}</div>
-    </div>
-    ${s.timestamp_hint ? `<div class="data-row"><div class="data-row-label">Time clues</div><div class="data-row-val">${s.timestamp_hint}</div></div>` : ''}
-    <div class="data-row">
-      <div class="data-row-label">Tags</div>
-      <div class="tag-list">${(s.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
-    </div>
-  `;
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  document.getElementById('scroll').scrollTop = 0;
+}
+
+function updateStatusPill(state) {
+  const pill = document.getElementById('statusPill');
+  const states = {
+    ready: ['Ready', false],
+    processing: ['Processing…', true],
+    done: ['Done ✓', true],
+    error: ['Error', false]
+  };
+  const [label, active] = states[state] || states.ready;
+  pill.textContent = label;
+  pill.classList.toggle('active', active);
 }
 </script>
 </body>
