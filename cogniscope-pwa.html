@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cogniscope">
+<meta name="theme-color" content="#0c0c0d">
+<title>Cogniscope</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #0c0c0d;
+  --s1: #161618;
+  --s2: #1e1e21;
+  --s3: #272729;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #edeae4;
+  --muted: rgba(237,234,228,0.42);
+  --muted2: rgba(237,234,228,0.25);
+  --lime: #c8f07a;
+  --teal: #7af0c8;
+  --pink: #f07ac8;
+  --amber: #f0c87a;
+  --red: #f07a7a;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%; width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* ── App shell ── */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-top: var(--safe-top);
+}
+
+/* ── Top bar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: rgba(12,12,13,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.logo {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.45rem;
+  color: var(--lime);
+  letter-spacing: -0.3px;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.count-pill {
+  background: var(--s3);
+  color: var(--lime);
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(200,240,122,0.2);
+}
+
+.icon-btn {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: var(--s2);
+  border: 1px solid var(--border2);
+  color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 16px;
+}
+.icon-btn:active { transform: scale(0.93); background: var(--s3); }
+
+/* ── Install banner ── */
+.install-banner {
+  margin: 12px 16px 0;
+  padding: 12px 14px;
+  background: linear-gradient(135deg, rgba(200,240,122,0.08), rgba(122,240,200,0.06));
+  border: 1px solid rgba(200,240,122,0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.install-icon { font-size: 22px; flex-shrink: 0; }
+
+.install-text { flex: 1; }
+.install-text strong { display: block; font-size: 13px; font-weight: 600; color: var(--lime); }
+.install-text span { font-size: 11px; color: var(--muted); line-height: 1.4; display: block; margin-top: 1px; }
+
+.install-steps {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  margin-top: 6px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.install-steps span {
+  background: var(--s3);
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: var(--teal) !important;
+}
+
+.dismiss-btn {
+  background: none; border: none; color: var(--muted2);
+  font-size: 20px; cursor: pointer; padding: 4px; line-height: 1; flex-shrink: 0;
+}
+
+/* ── Scroll area ── */
+.scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+.scroll-area::-webkit-scrollbar { display: none; }
+
+/* ── Screens ── */
+.screen { display: none; padding: 16px; padding-bottom: calc(90px + var(--safe-bottom)); }
+.screen.active { display: block; }
+
+/* ── Upload screen ── */
+.drop-zone {
+  border: 1.5px dashed var(--border2);
+  border-radius: 16px;
+  padding: 36px 20px;
+  text-align: center;
+  background: var(--s1);
+  margin-bottom: 16px;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.drop-zone.drag-over {
+  border-color: var(--lime);
+  background: rgba(200,240,122,0.04);
+}
+
+.upload-icon {
+  width: 52px; height: 52px;
+  margin: 0 auto 14px;
+  background: var(--s3);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+}
+
+.drop-zone h2 {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.drop-zone p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--lime);
+  color: #0c0c0d;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.upload-btn:active { transform: scale(0.96); background: #d8ff88; }
+
+#fileInput { display: none; }
+
+/* ── Thumb grid ── */
+.section-label {
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 10px;
+}
+
+.thumb-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.thumb-card {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--s2);
+  border: 1.5px solid var(--border);
+  aspect-ratio: 9/16;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.thumb-card img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumb-card .remove {
+  position: absolute;
+  top: 5px; right: 5px;
+  width: 22px; height: 22px;
+  background: rgba(0,0,0,0.7);
+  border: none; border-radius: 50%;
+  color: white; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
+.thumb-card.analysed { border-color: rgba(200,240,122,0.4); }
+
+.thumb-card .badge {
+  position: absolute;
+  bottom: 5px; left: 5px;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+  border-radius: 6px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  color: var(--lime);
+}
+
+/* ── Analyse button ── */
+.analyse-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  padding: 12px 16px calc(12px + var(--safe-bottom));
+  background: rgba(12,12,13,0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  z-index: 100;
+}
+
+.analyse-bar button {
+  width: 100%;
+  padding: 16px;
+  background: var(--lime);
+  color: #0c0c0d;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+
+.analyse-bar button:active { transform: scale(0.98); }
+.analyse-bar button:disabled { background: var(--s3); color: var(--muted); }
+
+/* ── Bottom nav ── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(12,12,13,0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  padding: 8px 0 calc(8px + var(--safe-bottom));
+  display: none;
+  z-index: 100;
+}
+
+.bottom-nav.visible { display: flex; }
+
+.nav-items {
+  display: flex;
+  width: 100%;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: none;
+  background: none;
+  color: var(--muted);
+}
+
+.nav-item.active { color: var(--lime); }
+.nav-item:active { transform: scale(0.9); }
+
+.nav-icon { font-size: 20px; line-height: 1; }
+.nav-label { font-size: 10px; font-family: 'DM Mono', monospace; letter-spacing: 0.5px; }
+
+/* ── Loading screen ── */
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 20px;
+  text-align: center;
+  padding: 2rem;
+}
+
+.loading-ring {
+  width: 56px; height: 56px;
+  border: 2px solid var(--s3);
+  border-top-color: var(--lime);
+  border-right-color: rgba(200,240,122,0.3);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.3rem;
+  color: var(--lime);
+}
+
+.loading-step {
+  font-size: 12px;
+  font-family: 'DM Mono', monospace;
+  color: var(--muted);
+  min-height: 18px;
+}
+
+.progress-dots {
+  display: flex; gap: 6px;
+}
+
+.dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--s3);
+  transition: background 0.3s;
+}
+.dot.active { background: var(--lime); }
+
+/* ── Results: Sequence ── */
+.seq-list { display: flex; flex-direction: column; gap: 12px; }
+
+.seq-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.seq-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+}
+
+.seq-num {
+  font-family: 'Instrument Serif', serif;
+  font-size: 2rem;
+  color: var(--lime);
+  line-height: 1;
+  min-width: 32px;
+}
+
+.seq-img {
+  width: 56px; height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.seq-meta { flex: 1; min-width: 0; }
+.seq-meta h3 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.seq-type-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  background: var(--s3);
+  color: var(--teal);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.seq-body {
+  padding: 0 14px 14px;
+  font-size: 13px;
+  color: rgba(237,234,228,0.65);
+  line-height: 1.6;
+}
+
+.seq-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.tag {
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  background: var(--s3);
+  color: var(--lime);
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(200,240,122,0.12);
+}
+
+.seq-arrow {
+  text-align: center;
+  color: var(--muted2);
+  font-size: 18px;
+  margin: -4px 0;
+}
+
+.reasoning-box {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.reasoning-box strong { color: var(--teal); font-weight: 500; }
+
+/* ── Results: Connections ── */
+.conn-list { display: flex; flex-direction: column; gap: 12px; }
+
+.conn-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.conn-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.conn-type-pill {
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.pill-thematic { background: rgba(200,240,122,0.1); color: var(--lime); border: 1px solid rgba(200,240,122,0.2); }
+.pill-temporal { background: rgba(122,240,200,0.1); color: var(--teal); border: 1px solid rgba(122,240,200,0.2); }
+.pill-causal { background: rgba(240,122,200,0.1); color: var(--pink); border: 1px solid rgba(240,122,200,0.2); }
+.pill-contextual { background: rgba(240,200,122,0.1); color: var(--amber); border: 1px solid rgba(240,200,122,0.2); }
+
+.conn-title { font-size: 14px; font-weight: 600; }
+
+.conn-shots {
+  display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px;
+}
+
+.conn-shot-pill {
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  background: var(--s3);
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: var(--muted);
+}
+
+.conn-desc {
+  font-size: 13px;
+  color: rgba(237,234,228,0.65);
+  line-height: 1.6;
+}
+
+/* ── Results: Critical ── */
+.critical-list { display: flex; flex-direction: column; gap: 12px; }
+
+.critical-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  border-left: 3px solid var(--lime);
+}
+
+.critical-card.insight { border-left-color: var(--teal); }
+.critical-card.warning { border-left-color: var(--amber); }
+.critical-card.question { border-left-color: var(--pink); }
+
+.critical-label {
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+.critical-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.critical-card p { font-size: 13px; color: rgba(237,234,228,0.65); line-height: 1.6; }
+
+/* ── Results: Individual ── */
+.ind-selector {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 14px;
+  scrollbar-width: none;
+}
+.ind-selector::-webkit-scrollbar { display: none; }
+
+.ind-thumb-btn {
+  flex-shrink: 0;
+  width: 52px; height: 72px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.15s;
+  background: none; padding: 0;
+}
+
+.ind-thumb-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ind-thumb-btn.active { border-color: var(--lime); }
+
+.ind-big-img {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  display: block;
+  margin-bottom: 14px;
+  max-height: 55vw;
+  object-fit: cover;
+}
+
+.data-rows { display: flex; flex-direction: column; gap: 8px; }
+
+.data-row {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.data-row-label {
+  font-size: 10px;
+  font-family: 'DM Mono', monospace;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 3px;
+}
+
+.data-row-val { font-size: 13px; color: var(--text); line-height: 1.5; }
+.data-row .tag-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+
+/* ── Misc ── */
+.theme-tag {
+  display: inline-block;
+  background: rgba(200,240,122,0.08);
+  border: 1px solid rgba(200,240,122,0.2);
+  color: var(--lime);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-style: italic;
+  font-family: 'Instrument Serif', serif;
+  margin-bottom: 14px;
+  width: 100%;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="logo">Cogniscope</div>
+    <div class="topbar-right">
+      <span class="count-pill" id="countPill">0 shots</span>
+      <div class="icon-btn" id="addMoreBtn" onclick="document.getElementById('fileInput').click()" title="Add more">＋</div>
+    </div>
+  </div>
+
+  <!-- Install banner (iOS) -->
+  <div class="install-banner" id="installBanner">
+    <div class="install-icon">📲</div>
+    <div class="install-text">
+      <strong>Add to Home Screen</strong>
+      <span>Works like a native app — no browser chrome</span>
+      <div class="install-steps">
+        Tap <span>Share ↑</span> then <span>Add to Home Screen</span>
+      </div>
+    </div>
+    <button class="dismiss-btn" onclick="dismissBanner()">×</button>
+  </div>
+
+  <div class="scroll-area" id="scrollArea">
+
+    <!-- Upload screen -->
+    <div class="screen active" id="screen-upload">
+      <div class="drop-zone" id="dropZone">
+        <div class="upload-icon">🖼</div>
+        <h2>Upload Screenshots</h2>
+        <p>Select multiple screenshots from your library — Claude will read, connect and organise them.</p>
+        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+          <span>📂</span> Choose Screenshots
+        </button>
+      </div>
+      <input type="file" id="fileInput" multiple accept="image/*">
+
+      <div id="thumbSection" style="display:none">
+        <div class="section-label" style="margin-bottom:10px">Selected</div>
+        <div class="thumb-grid" id="thumbGrid"></div>
+      </div>
+    </div>
+
+    <!-- Loading screen -->
+    <div class="screen" id="screen-loading">
+      <div class="loading-screen">
+        <div class="loading-ring"></div>
+        <div class="loading-title">Analysing…</div>
+        <div class="loading-step" id="loadingStep">Reading screenshot content</div>
+        <div class="progress-dots" id="progressDots">
+          <div class="dot active"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sequence screen -->
+    <div class="screen" id="screen-sequence">
+      <div class="reasoning-box" id="seqReasoning"></div>
+      <div class="seq-list" id="seqList"></div>
+    </div>
+
+    <!-- Connections screen -->
+    <div class="screen" id="screen-connections">
+      <div class="conn-list" id="connList"></div>
+    </div>
+
+    <!-- Critical screen -->
+    <div class="screen" id="screen-critical">
+      <div class="critical-list" id="critList"></div>
+    </div>
+
+    <!-- Individual screen -->
+    <div class="screen" id="screen-individual">
+      <div class="ind-selector" id="indSelector"></div>
+      <img class="ind-big-img" id="indBigImg" src="" alt="">
+      <div class="data-rows" id="indDataRows"></div>
+    </div>
+
+  </div><!-- end scroll area -->
+
+  <!-- Upload action bar -->
+  <div class="analyse-bar" id="analyseBar">
+    <button id="analyseBtn" disabled onclick="runAnalysis()">
+      <span>✦</span> Analyse Screenshots
+    </button>
+  </div>
+
+  <!-- Bottom nav (shown after results) -->
+  <nav class="bottom-nav" id="bottomNav">
+    <div class="nav-items">
+      <button class="nav-item active" data-screen="sequence" onclick="switchScreen(this)">
+        <span class="nav-icon">⟳</span>
+        <span class="nav-label">Sequence</span>
+      </button>
+      <button class="nav-item" data-screen="connections" onclick="switchScreen(this)">
+        <span class="nav-icon">◈</span>
+        <span class="nav-label">Links</span>
+      </button>
+      <button class="nav-item" data-screen="critical" onclick="switchScreen(this)">
+        <span class="nav-icon">◎</span>
+        <span class="nav-label">Critical</span>
+      </button>
+      <button class="nav-item" data-screen="individual" onclick="switchScreen(this)">
+        <span class="nav-icon">◻</span>
+        <span class="nav-label">Each</span>
+      </button>
+      <button class="nav-item" data-screen="upload" onclick="switchScreen(this)">
+        <span class="nav-icon">＋</span>
+        <span class="nav-label">Add</span>
+      </button>
+    </div>
+  </nav>
+
+</div>
+
+<script>
+const screenshots = [];
+let results = null;
+let activeIndIdx = 0;
+
+// Install banner — hide if already standalone
+if (window.navigator.standalone) {
+  document.getElementById('installBanner').style.display = 'none';
+}
+
+function dismissBanner() {
+  document.getElementById('installBanner').style.display = 'none';
+}
+
+// File handling
+document.getElementById('fileInput').addEventListener('change', e => handleFiles(e.target.files));
+
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleFiles(e.dataTransfer.files); });
+
+function handleFiles(files) {
+  Array.from(files).forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      screenshots.push({ name: file.name, dataUrl: e.target.result, status: 'pending' });
+      renderThumbs();
+      updateAnalyseBtn();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderThumbs() {
+  const count = screenshots.length;
+  document.getElementById('countPill').textContent = count + ' shot' + (count !== 1 ? 's' : '');
+  const section = document.getElementById('thumbSection');
+  const grid = document.getElementById('thumbGrid');
+  if (count === 0) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  grid.innerHTML = screenshots.map((s, i) => `
+    <div class="thumb-card ${s.status === 'analysed' ? 'analysed' : ''}">
+      <img src="${s.dataUrl}" alt="${s.name}" loading="lazy">
+      ${s.status === 'analysed' ? '<div class="badge">✓</div>' : ''}
+      <button class="remove" onclick="removeShot(event,${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function removeShot(e, i) {
+  e.stopPropagation();
+  screenshots.splice(i, 1);
+  renderThumbs();
+  updateAnalyseBtn();
+}
+
+function updateAnalyseBtn() {
+  const btn = document.getElementById('analyseBtn');
+  const n = screenshots.length;
+  btn.disabled = n === 0;
+  btn.innerHTML = n === 0
+    ? '<span>✦</span> Analyse Screenshots'
+    : `<span>✦</span> Analyse ${n} Screenshot${n !== 1 ? 's' : ''}`;
+}
+
+// Screens
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  document.getElementById('scrollArea').scrollTop = 0;
+}
+
+function switchScreen(btn) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  showScreen(btn.dataset.screen);
+}
+
+// Analysis
+async function runAnalysis() {
+  if (screenshots.length === 0) return;
+
+  document.getElementById('analyseBar').style.display = 'none';
+  document.getElementById('bottomNav').classList.remove('visible');
+  showScreen('loading');
+
+  const steps = [
+    'Reading screenshot content…',
+    'Detecting themes and entities…',
+    'Inferring sequence…',
+    'Mapping connections…',
+    'Critical thinking…',
+    'Synthesising…'
+  ];
+  let si = 0;
+  const dots = document.querySelectorAll('.dot');
+  const stepEl = document.getElementById('loadingStep');
+  const stepTimer = setInterval(() => {
+    si = (si + 1) % steps.length;
+    stepEl.textContent = steps[si];
+    dots.forEach((d, i) => d.classList.toggle('active', i === si % dots.length));
+  }, 1800);
+
+  try {
+    const userContent = [];
+    for (let i = 0; i < screenshots.length; i++) {
+      const s = screenshots[i];
+      const b64 = s.dataUrl.split(',')[1];
+      const mime = s.dataUrl.split(';')[0].split(':')[1];
+      userContent.push({ type: 'text', text: `Screenshot ${i+1} ("${s.name}"):` });
+      userContent.push({ type: 'image', source: { type: 'base64', media_type: mime, data: b64 } });
+    }
+    userContent.push({ type: 'text', text: `Analyse all ${screenshots.length} screenshots. Return ONLY valid JSON, no markdown fences:
+{
+  "screenshots": [
+    {
+      "index": 0,
+      "title": "short title",
+      "summary": "2-3 sentence summary",
+      "key_entities": ["entity1"],
+      "content_type": "type",
+      "timestamp_hint": "any date/time clue or null",
+      "tags": ["tag1","tag2","tag3"]
+    }
+  ],
+  "sequence": {
+    "ordered_indices": [0,1,2],
+    "reasoning": "why this order",
+    "confidence": "high|medium|low",
+    "sequence_type": "e.g. chronological/workflow/narrative"
+  },
+  "connections": [
+    {
+      "type": "thematic|temporal|causal|contextual",
+      "screenshot_indices": [0,1],
+      "title": "connection title",
+      "description": "what connects them"
+    }
+  ],
+  "critical_analysis": {
+    "overall_theme": "one sentence",
+    "summary": "paragraph summary",
+    "key_insights": [{"title":"","body":""}],
+    "warnings": [{"title":"","body":""}],
+    "open_questions": [{"title":"","body":""}]
+  }
+}` });
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        system: 'You are an expert analyst. Respond ONLY with valid JSON, no markdown, no preamble.',
+        messages: [{ role: 'user', content: userContent }]
+      })
+    });
+
+    const data = await res.json();
+    const raw = data.content.map(b => b.text || '').join('');
+    results = JSON.parse(raw.replace(/```json|```/g, '').trim());
+
+    clearInterval(stepTimer);
+    screenshots.forEach(s => s.status = 'analysed');
+    renderThumbs();
+    renderAllResults();
+
+    document.getElementById('bottomNav').classList.add('visible');
+    document.getElementById('analyseBar').style.display = 'none';
+
+    // Go to sequence view
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelector('[data-screen="sequence"]').classList.add('active');
+    showScreen('sequence');
+
+  } catch (err) {
+    clearInterval(stepTimer);
+    document.getElementById('analyseBar').style.display = 'block';
+    document.getElementById('analyseBar').querySelector('button').disabled = false;
+    updateAnalyseBtn();
+    showScreen('upload');
+    alert('Analysis failed: ' + err.message);
+    screenshots.forEach(s => s.status = 'pending');
+    renderThumbs();
+  }
+}
+
+function renderAllResults() {
+  renderSequence();
+  renderConnections();
+  renderCritical();
+  renderIndividual(0);
+}
+
+function renderSequence() {
+  const { sequence, screenshots: shots } = results;
+  const ordered = sequence.ordered_indices.map(i => ({ ...shots[i], origIdx: i }));
+
+  document.getElementById('seqReasoning').innerHTML =
+    `<strong>${sequence.sequence_type}</strong> · ${sequence.reasoning} <span style="color:var(--teal);font-family:'DM Mono',monospace;font-size:10px;margin-left:4px">${sequence.confidence} confidence</span>`;
+
+  document.getElementById('seqList').innerHTML = ordered.map((s, pos) => `
+    <div class="seq-card">
+      <div class="seq-card-header">
+        <div class="seq-num">${pos + 1}</div>
+        <img class="seq-img" src="${screenshots[s.origIdx].dataUrl}" alt="">
+        <div class="seq-meta">
+          <h3>${s.title}</h3>
+          <span class="seq-type-badge">${s.content_type}</span>
+        </div>
+      </div>
+      <div class="seq-body">
+        ${s.summary}
+        <div class="seq-tags">${(s.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+      </div>
+    </div>
+    ${pos < ordered.length - 1 ? '<div class="seq-arrow">↓</div>' : ''}
+  `).join('');
+}
+
+function renderConnections() {
+  const { connections, screenshots: shots } = results;
+  document.getElementById('connList').innerHTML = connections.map(c => `
+    <div class="conn-card">
+      <div class="conn-top">
+        <span class="conn-type-pill pill-${c.type}">${c.type}</span>
+        <span class="conn-title">${c.title}</span>
+      </div>
+      <div class="conn-shots">
+        ${c.screenshot_indices.map(i => `<span class="conn-shot-pill">#${i+1} ${(shots[i]?.title||'').slice(0,18)}</span>`).join('')}
+      </div>
+      <p class="conn-desc">${c.description}</p>
+    </div>
+  `).join('');
+}
+
+function renderCritical() {
+  const ca = results.critical_analysis;
+  let html = `<div class="theme-tag">${ca.overall_theme}</div>`;
+
+  html += `<div class="critical-card" style="border-left-color:var(--lime)">
+    <div class="critical-label">Overview</div>
+    <p>${ca.summary}</p>
+  </div>`;
+
+  (ca.key_insights||[]).forEach(ins => {
+    html += `<div class="critical-card insight">
+      <div class="critical-label">Key insight</div>
+      <h3>${ins.title}</h3>
+      <p>${ins.body}</p>
+    </div>`;
+  });
+
+  (ca.warnings||[]).forEach(w => {
+    html += `<div class="critical-card warning">
+      <div class="critical-label">Gap / Warning</div>
+      <h3>${w.title}</h3>
+      <p>${w.body}</p>
+    </div>`;
+  });
+
+  (ca.open_questions||[]).forEach(q => {
+    html += `<div class="critical-card question">
+      <div class="critical-label">Open question</div>
+      <h3>${q.title}</h3>
+      <p>${q.body}</p>
+    </div>`;
+  });
+
+  document.getElementById('critList').innerHTML = html;
+}
+
+function renderIndividual(idx) {
+  activeIndIdx = idx;
+  const shots = results.screenshots;
+  const s = shots[idx];
+
+  document.getElementById('indSelector').innerHTML = shots.map((ss, i) => `
+    <button class="ind-thumb-btn ${i === idx ? 'active' : ''}" onclick="renderIndividual(${i})">
+      <img src="${screenshots[i].dataUrl}" alt="">
+    </button>
+  `).join('');
+
+  document.getElementById('indBigImg').src = screenshots[idx].dataUrl;
+
+  document.getElementById('indDataRows').innerHTML = `
+    <div class="data-row">
+      <div class="data-row-label">Content type</div>
+      <div class="data-row-val">${s.content_type}</div>
+    </div>
+    <div class="data-row">
+      <div class="data-row-label">Summary</div>
+      <div class="data-row-val">${s.summary}</div>
+    </div>
+    <div class="data-row">
+      <div class="data-row-label">Key entities</div>
+      <div class="tag-list">${(s.key_entities||[]).map(e => `<span class="tag">${e}</span>`).join('')}</div>
+    </div>
+    ${s.timestamp_hint ? `<div class="data-row"><div class="data-row-label">Time clues</div><div class="data-row-val">${s.timestamp_hint}</div></div>` : ''}
+    <div class="data-row">
+      <div class="data-row-label">Tags</div>
+      <div class="tag-list">${(s.tags||[]).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+    </div>
+  `;
+}
+</script>
+</body>
+</html>
